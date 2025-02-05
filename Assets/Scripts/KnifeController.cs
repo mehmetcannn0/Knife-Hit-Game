@@ -7,13 +7,16 @@ public class KnifeController : MonoBehaviour
 {
     private KnifeManager knifeManager;
     private Rigidbody2D knifeRigidbody;
-    [SerializeField] private float moveSpeed;
+    public float moveSpeed;
     private bool canShoot;
+    private GameManager gameManager;
 
     private void Start()
     {
         knifeRigidbody = GetComponent<Rigidbody2D>();
         knifeManager = FindObjectOfType<KnifeManager>();
+        gameManager = FindObjectOfType<GameManager>();  
+        moveSpeed = knifeManager.knifeMoveSpeed;
     }
     private void Update()
     {
@@ -27,12 +30,16 @@ public class KnifeController : MonoBehaviour
 
     private void HandleShootInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!gameManager.isGamePaused)
         {
-            knifeManager.SetDisableKnifeIconColor();
+            if (Input.GetMouseButtonDown(0))
+            {
+                knifeManager.SetDisableKnifeIconColor();
 
-            canShoot = true;
+                canShoot = true;
+            }
         }
+       
     }
     private void Shoot()
     {
@@ -55,10 +62,14 @@ public class KnifeController : MonoBehaviour
             knifeRigidbody.angularVelocity = 0f;
             knifeRigidbody.bodyType = RigidbodyType2D.Kinematic;
             transform.SetParent(collision.gameObject.transform);
-        }else if (collision.gameObject.CompareTag("Knife"))
+            knifeManager.hit++;
+            knifeManager.hitText.text = knifeManager.hit.ToString();
+        }
+        else if (collision.gameObject.CompareTag("Knife"))
         {
             //Time.timeScale = 0;
-            SceneManager.LoadScene(0);
+            //SceneManager.LoadScene(0);
+            gameManager.GameOver();
 
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class KnifeManager : MonoBehaviour
@@ -15,18 +16,22 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] private int knifeCount;
     [SerializeField] private Transform knifeIconsParent;
     [SerializeField] private Transform knifeParent;
+    [SerializeField] private GameManager gameManager;
+    public int knifeMoveSpeed=2000;
+    public int hit = 0;
+    public TextMeshProUGUI hitText;
 
     private int currentKnifeIndex = 0;
 
 
     private void Start()
     {
-        CreateKnife();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
-    private void CreateKnife()
+    public void CreateKnife()
     {
-        for (int i = 0; i < knifeCount; i++)
+        for (int i = 0; i < gameManager.level ; i++)
         {
             GameObject newKnife = Instantiate(knifePrefab, transform.position, Quaternion.identity);
             newKnife.transform.SetParent(knifeParent);
@@ -45,11 +50,26 @@ public class KnifeManager : MonoBehaviour
         
 
     }
+    public void ClearKnifes()
+    {
+        foreach (var knife in knifeList)
+        {
+            Destroy(knife);
+        }
+        foreach (var knifeIcon in knifeIconList)
+        {
+            Destroy(knifeIcon);
+        }
+        knifeList.Clear();
+        knifeIconList.Clear();
+        knifeIconPosition = new Vector2(-1.7f, -4.35f);
+        currentKnifeIndex = 0;
+    }
     public void SetDisableKnifeIconColor()
     {
-        Debug.Log("SetDisableKnifeIconColor");
-        Debug.Log("currentKnifeIndex: " + currentKnifeIndex);
-        Debug.Log("knifeIconList.Count: " + knifeIconList.Count);
+        //Debug.Log("SetDisableKnifeIconColor");
+        //Debug.Log("currentKnifeIndex: " + currentKnifeIndex);
+        //Debug.Log("knifeIconList.Count: " + knifeIconList.Count);
         knifeIconList[(knifeIconList.Count-1)-currentKnifeIndex].GetComponent<SpriteRenderer>().color = disableColor;
     }
 
@@ -60,6 +80,10 @@ public class KnifeManager : MonoBehaviour
         {
             currentKnifeIndex++;
             knifeList[currentKnifeIndex].SetActive(true);
+        }
+        else
+        {
+            gameManager.NextLevel();
         }
     }
   
